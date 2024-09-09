@@ -132,6 +132,8 @@ jobs:
         run: |
           ASSISTOS_TAG=${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }}
           echo "publishing ASSISTOS dev build version $ASSISTOS_TAG"
+          echo "ASSISTOS_TAG=$ASSISTOS_TAG" >> $GITHUB_ENV
+          echo "${{ inputs.organizationIdentifier }}/assistos-workspace:$ASSISTOS_TAG"
           docker push ${{ inputs.organizationIdentifier }}/assistos-workspace:$ASSISTOS_TAG
 
       - name: 'Add information to Summary'
