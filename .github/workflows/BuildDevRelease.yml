@@ -72,31 +72,30 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          path: "./cicd-automation"
-
+       
       - name: Update LLMOS env values
         run: |
-          cd cicd-automation/buildScripts/llmos  
+          cd buildScripts/llmos  
           echo "" > values.sh
           cat > values.sh << EOF
           NODE_ALPINE_BASE_IMAGE='${{ inputs.nodeBaseImage }}'
           HUB_IDENTIFIER='${{ inputs.hubIdentifier }}'  
-          LLMOS_NAME='llmos' 
+          LLMOS_NAME='llmos'
+          LLMOS_REPO='https://github.com/AssistOS-AI/LLMOS.git'
           LLMOS_IMAGE_NAME='${{ inputs.organizationIdentifier }}/llmos'
           VERSION='${{ inputs.llmosTag }}-rc${{ inputs.llmosRC }}' 
           EOF
 
-      - name: Run llmos adapter build script
+      - name: Run llmos build script
         if: ${{inputs.llmosTag != ''}}
         run: |
-          cd cicd-automation/buildScripts/llmos
+          cd buildScripts/llmos
           ./build.sh 
 
-      - name: Tag llmos adapter image
+      - name: Tag llmos image
         if: ${{inputs.llmosTag != ''}}
         run: |
-          cd cicd-automation/buildScripts/llmos
+          cd buildScripts/llmos
           ./tag.sh
 
       - name: Publishing the images
@@ -109,24 +108,25 @@ jobs:
 
       - name: Update AssistOS env values
         run: |
-          cd cicd-automation/buildScripts/assistos-workspace  
+          cd buildScripts/assistos-workspace  
           echo "" > values.sh
           cat > values.sh << EOF
           NODE_ALPINE_BASE_IMAGE='${{ inputs.nodeBaseImage }}' 
           HUB_IDENTIFIER='${{ inputs.hubIdentifier }}'  
           ASSISTOS_NAME='assistos-workspace'
+          ASSISTOS_REPO='https://github.com/AssistOS-AI/assistos-workspace.git'
           ASSISTOS_IMAGE_NAME='${{ inputs.organizationIdentifier }}/asssitos-workspace'
           VERSION='${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }}'
           EOF
 
       - name: Run AssistOS build script
         run: |
-          cd cicd-automation/buildScripts/assistos-workspace
+          cd buildScripts/assistos-workspace
           ./build.sh dev
 
       - name: Tag AssistOS image
         run: |
-          cd cicd-automation/buildScripts/assistos-workspace
+          cd buildScripts/assistos-workspace
           ./tag.sh
 
       - name: Publishing the images
