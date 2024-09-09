@@ -110,7 +110,7 @@ jobs:
           HUB_IDENTIFIER='${{ inputs.hubIdentifier }}'  
           ASSISTOS_NAME='assistos-workspace'
           ASSISTOS_REPO='https://github.com/AssistOS-AI/assistos-workspace.git'
-          ASSISTOS_IMAGE_NAME='${{ inputs.organizationIdentifier }}/asssitos-workspace'
+          ASSISTOS_IMAGE_NAME='${{ inputs.organizationIdentifier }}/asssistos-workspace'
           VERSION='${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }}'
           EOF
 
@@ -123,6 +123,10 @@ jobs:
         run: |
           cd buildScripts/assistos-workspace
           ./tag.sh
+
+      - name: List images
+        run: |
+          docker image ls
 
       - name: Publishing the images
         run: |
