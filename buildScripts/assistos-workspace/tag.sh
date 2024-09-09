@@ -1,0 +1,2 @@
+. values.sh
+docker tag $ASSISTOS_IMAGE_NAME:latest $ASSISTOS_IMAGE_NAME:$VERSION
