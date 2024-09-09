@@ -1,0 +1,143 @@
+name: Build DEV Release
+
+# Controls when the workflow will run
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      nodeBaseImage:
+        description: 'node alpine docker image  (e.g. node:x.y.z-alpine)'
+        required: true
+        default: 'node:20.15.0-alpine'
+        type: string
+      hubIdentifier:
+        description: 'docker repo identifier'
+        required: true
+        default: 'docker.io'
+        type: string
+      organizationIdentifier:
+        description: 'Organization Registry Identifier (concatenated with hubIdentifier and image name)'
+        required: true
+        default: 'assistos'
+        type: string
+      llmosTag:
+        description: 'LLMOS Image version (e.g. x.y.z version style or leave blank to prevent build)'
+        default: ''
+        type: string
+      llmOsRC:
+        description: 'LLMOS Release Candidate number'
+        default: ''
+        type: string
+      assistosTag:
+        description: 'AssistOS version'
+        required: true
+        default: '1.0.0'
+        type: string
+      assistosRC:
+        description: 'AssistOS Release Candidate number'
+        required: true
+        default: '1'
+        type: string
+
+env:
+  LLMOS_TAG: ""
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+jobs:
+  # This workflow contains a single job called "build"
+  build-dev-release:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-22.04
+    environment: production
+
+    defaults:
+      run:
+        shell: bash
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Set env variables
+        run: |
+          echo "PREVENT_GITHUB_ORGANIZATION=true" >> $GITHUB_ENV
+          echo "GITHUB_ORGANIZATION=axiologic-pla" >> $GITHUB_ENV
+
+      - name: Docker login
+        run: docker login ${{ inputs.hubIdentifier }} -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Update LLMOS env values
+        run: |
+          cd cicd-automation/buildScripts/llmos  
+          echo "" > values.sh
+          cat > values.sh << EOF
+          NODE_ALPINE_BASE_IMAGE='${{ inputs.nodeBaseImage }}'
+          HUB_IDENTIFIER='${{ inputs.hubIdentifier }}'  
+          LLMOS_NAME='llmos' 
+          LLMOS_IMAGE_NAME='${{ inputs.organizationIdentifier }}/llmos'
+          VERSION='${{ inputs.llmosTag }}-rc${{ inputs.llmosRC }}' 
+          EOF
+
+      - name: Run llmos adapter build script
+        if: ${{inputs.llmosTag != ''}}
+        run: |
+          cd cicd-automation/buildScripts/llmos
+          ./build.sh 
+
+      - name: Tag llmos adapter image
+        if: ${{inputs.llmosTag != ''}}
+        run: |
+          cd cicd-automation/buildScripts/llmos
+          ./tag.sh
+
+      - name: Publishing the images
+        if: ${{inputs.llmosTag != ''}}
+        run: |
+          LLMOS_TAG=${{ inputs.llmosTag }}-rc${{ inputs.llmosRC }}
+          echo "publishing LLMOS dev build version $LLMOS_TAG"
+          docker push ${{ inputs.organizationIdentifier }}/llmos:$LLMOS_TAG
+          echo "LLMOS_TAG=$LLMOS_TAG" >> $GITHUB_ENV
+
+      - name: Update AssistOS env values
+        run: |
+          cd cicd-automation/buildScripts/assistos-workspace  
+          echo "" > values.sh
+          cat > values.sh << EOF
+          NODE_ALPINE_BASE_IMAGE='${{ inputs.nodeBaseImage }}' 
+          HUB_IDENTIFIER='${{ inputs.hubIdentifier }}'  
+          ASSISTOS_NAME='assistos-workspace'
+          ASSISTOS_IMAGE_NAME='${{ inputs.organizationIdentifier }}/asssitos-workspace'
+          VERSION='${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }}'
+          EOF
+
+      - name: Run AssistOS build script
+        run: |
+          cd cicd-automation/buildScripts/assistos-workspace
+          ./build.sh dev
+
+      - name: Tag AssistOS image
+        run: |
+          cd cicd-automation/buildScripts/assistos-workspace
+          ./tag.sh
+
+      - name: Publishing the images
+        run: |
+          ASSISTOS_TAG=${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }}
+          echo "publishing ASSISTOS dev build version $ASSISTOS_TAG"
+          docker push ${{ inputs.organizationIdentifier }}/assistos-workspace:$ASSISTOS_TAG
+
+      - name: 'Add information to Summary'
+        run: |
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          | Inputs                 | Value                                                |
+          | ---------------------- | -----------------------------------------------------|
+          | nodeBaseImage          | ${{ inputs.nodeBaseImage }}                          |
+          | hubIdentifier          | ${{ inputs.hubIdentifier }}                          |
+          | organizationIdentifier | ${{ inputs.organizationIdentifier }}                 |
+          | llmosTag               | ${{ inputs.llmosTag }}-rc${{ inputs.llmOsRC }}       |
+          | assistosTag            | ${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }} |
+          EOF
