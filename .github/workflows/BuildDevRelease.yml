@@ -131,8 +131,9 @@ jobs:
       - name: Publishing the images
         run: |
           ASSISTOS_TAG=${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }}
-          echo "publishing ASSISTOS dev build version $ASSISTOS_TAG"
+          echo "publishing ASSISTOS dev build version ${{ ASSISTOS_TAG }}"
           docker push ${{inputs.hubIdentifier}}/${{ inputs.organizationIdentifier }}/assistos-workspace:$ASSISTOS_TAG
+          echo "ASSISTOS_TAG=$ASSISTOS_TAG" >> $GITHUB_ENV
 
       - name: 'Add information to Summary'
         run: |
