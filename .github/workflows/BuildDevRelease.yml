@@ -10,6 +10,16 @@ on:
         required: true
         default: 'node:20.15.0-alpine'
         type: string
+      hubIdentifier:
+        description: 'docker repo identifier'
+        required: true
+        default: 'docker.io'
+        type: string
+      organizationIdentifier:
+        description: 'Organization Registry Identifier (concatenated with hubIdentifier and image name)'
+        required: true
+        default: 'assistos'
+        type: string
       llmosTag:
         description: 'LLMOS Image version (e.g. x.y.z version style or leave blank to prevent build)'
         default: ''
@@ -64,9 +74,10 @@ jobs:
           echo "" > values.sh
           cat > values.sh << EOF
           NODE_ALPINE_BASE_IMAGE='${{ inputs.nodeBaseImage }}'
+          HUB_IDENTIFIER='${{ inputs.hubIdentifier }}'  
           LLMOS_NAME='llmos'
           LLMOS_REPO='https://github.com/AssistOS-AI/LLMOS.git'
-          LLMOS_IMAGE_NAME='assistos/llmos'
+          LLMOS_IMAGE_NAME='${{ inputs.organizationIdentifier }}/llmos'
           VERSION='${{ inputs.llmosTag }}-rc${{ inputs.llmosRC }}' 
           EOF
 
@@ -87,7 +98,7 @@ jobs:
         run: |
           LLMOS_TAG=${{ inputs.llmosTag }}-rc${{ inputs.llmosRC }}
           echo "publishing LLMOS dev build version $LLMOS_TAG"
-          docker push assistos/llmos:$LLMOS_TAG
+          docker push ${{inputs.hubIdentifier}}/${{ inputs.organizationIdentifier }}/llmos:$LLMOS_TAG
           echo "LLMOS_TAG=$LLMOS_TAG" >> $GITHUB_ENV
 
       - name: Update AssistOS env values
@@ -99,7 +110,7 @@ jobs:
           HUB_IDENTIFIER='${{ inputs.hubIdentifier }}'  
           ASSISTOS_NAME='assistos-workspace'
           ASSISTOS_REPO='https://github.com/AssistOS-AI/assistos-workspace.git'
-          ASSISTOS_IMAGE_NAME='assistos/asssistos-workspace'
+          ASSISTOS_IMAGE_NAME='${{ inputs.organizationIdentifier }}/asssistos-workspace'
           VERSION='${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }}'
           EOF
 
@@ -121,9 +132,7 @@ jobs:
         run: |
           ASSISTOS_TAG=${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }}
           echo "publishing ASSISTOS dev build version $ASSISTOS_TAG"
-          echo "ASSISTOS_TAG=$ASSISTOS_TAG" >> $GITHUB_ENV
-          echo "assistos/assistos-workspace:$ASSISTOS_TAG"
-          docker push assistos/assistos-workspace:$ASSISTOS_TAG
+          docker push ${{inputs.hubIdentifier}}/${{ inputs.organizationIdentifier }}/assistos-workspace:$ASSISTOS_TAG
 
       - name: 'Add information to Summary'
         run: |
