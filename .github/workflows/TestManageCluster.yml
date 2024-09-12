@@ -1,4 +1,4 @@
-name: Manage Kubernetes Cluster
+name: Test Manage Kubernetes Cluster
 
 on:
   workflow_dispatch:
