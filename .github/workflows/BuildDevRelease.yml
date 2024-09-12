@@ -117,7 +117,7 @@ jobs:
       - name: Run AssistOS build script
         run: |
           cd buildScripts/assistos-workspace
-          ./build.sh dev
+          ./build.sh
 
       - name: Tag AssistOS image
         run: |
@@ -132,7 +132,7 @@ jobs:
         run: |
           ASSISTOS_TAG=${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }}
           echo "publishing ASSISTOS dev build version $ASSISTOS_TAG"
-          docker push ${{inputs.hubIdentifier}}/${{ inputs.organizationIdentifier }}/assistos-workspace:$ASSISTOS_TAG
+          docker push '${{inputs.hubIdentifier}}/${{ inputs.organizationIdentifier }}/assistos-workspace:$ASSISTOS_TAG'
           echo "ASSISTOS_TAG=$ASSISTOS_TAG" >> $GITHUB_ENV
 
       - name: 'Add information to Summary'
