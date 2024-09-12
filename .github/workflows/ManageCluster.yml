@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up doctl
-        run: |
-          curl -sL https://github.com/digitalocean/doctl/releases/latest/download/doctl-$(uname -s)-$(uname -m).tar.gz | tar xz
-          sudo mv doctl /usr/local/bin
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
 
       - name: Authenticate with DigitalOcean
         run: doctl auth init -t ${{ secrets.DO_API_TOKEN }}
@@ -30,9 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up doctl
-        run: |
-          curl -sL https://github.com/digitalocean/doctl/releases/latest/download/doctl-$(uname -s)-$(uname -m).tar.gz | tar xz
-          sudo mv doctl /usr/local/bin
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
 
       - name: Authenticate with DigitalOcean
         run: doctl auth init -t ${{ secrets.DO_API_TOKEN }}
@@ -41,6 +41,6 @@ jobs:
         run: |
           doctl kubernetes cluster create my-cluster \
             --region fra1 \
-            --version 1.22.8-do.0 \
+            --version 1.30.4-do.0 \
             --size s-2vcpu-4gb \
-            --count 3
+            --count 1
