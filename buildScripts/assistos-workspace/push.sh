@@ -1,0 +1,2 @@
+. values.sh
+docker push "$HUB_IDENTIFIER/$ASSISTOS_IMAGE_NAME:$VERSION"
