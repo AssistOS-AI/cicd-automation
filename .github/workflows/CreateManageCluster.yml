@@ -20,7 +20,7 @@ jobs:
 
       - name: Create Kubernetes Cluster
         run: |
-          doctl kubernetes cluster create my-cluster \
+          doctl kubernetes cluster create ${{ env.CLUSTER_NAME }} \
             --region fra1 \
             --version 1.30.4-do.0 \
             --size s-1vcpu-2gb \
