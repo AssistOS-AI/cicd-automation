@@ -86,7 +86,7 @@ jobs:
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
           
-          helm upgrade --install assistos assistos/assistos \
+          helm upgrade --install --wait --timeout 300s assistos assistos/assistos \
             --set config.domain="${{ env.DOMAIN }}" \
             --set config.subDomain="${{ env.SUBDOMAIN }}" \
             --set config.vaultDomain="${{ env.VAULT_DOMAIN }}" \
