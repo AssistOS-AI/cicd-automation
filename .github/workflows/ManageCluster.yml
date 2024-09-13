@@ -25,8 +25,7 @@ jobs:
 
       - name: Stop Kubernetes Cluster
         run: |
-          CLUSTER_ID=$(doctl kubernetes cluster list --format ID --no-header)
-          doctl kubernetes cluster delete $CLUSTER_ID --force
+          doctl kubernetes cluster delete ${{ env.CLUSTER_NAME }} --force
 
   start-cluster:
     if: github.event.schedule == '0 6 * * *'
@@ -45,5 +44,5 @@ jobs:
           doctl kubernetes cluster create ${{ env.CLUSTER_NAME }} \
             --region fra1 \
             --version 1.30.4-do.0 \
-            --size s-2vcpu-4gb \
+            --size s-1vcpu-2gb \
             --count 1
