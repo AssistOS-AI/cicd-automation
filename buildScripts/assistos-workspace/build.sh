@@ -21,6 +21,7 @@ cd tmp/assistos-workspace
 # Run the dev-install script
 npm run dev-install
 
+npm run build
 # Go back to the original directory
 cd ../../
 
