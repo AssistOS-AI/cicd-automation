@@ -1,9 +1,6 @@
-name: Deploy Helm Chart with Image SHA from Docker Hub
+name: Deploy Assistos
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       ASSISTOS_IMAGE_TAG:
