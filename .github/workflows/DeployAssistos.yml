@@ -41,7 +41,7 @@ jobs:
           IMAGE_TAG="${{ github.event.inputs.ASSISTOS_IMAGE_TAG }}"
           REPOSITORY="assistos/assistos-workspace"
           docker pull ${REPOSITORY}:${IMAGE_TAG}
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${REPOSITORY}:${IMAGE_TAG}) | awk -F '[:@]' '{print $3}')
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${REPOSITORY}:${IMAGE_TAG} | awk -F '[:@]' '{print $3}')
           echo "ASSISTOS_IMAGE_SHA=${DIGEST}" >> $GITHUB_ENV
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
