@@ -22,6 +22,7 @@ env:
   LLMS_SERVER_PRODUCTION_BASE_URL: ${{ vars.LLMS_SERVER_PRODUCTION_BASE_URL }}
   S3_URL: ${{ vars.S3_URL }}
   HELM_CHART_URL: ${{ vars.HELM_CHART_URL }}
+  CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
 
 jobs:
   deploy:
@@ -60,7 +61,16 @@ jobs:
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set up doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
 
+      - name: Authenticate with DigitalOcean
+        run: doctl auth init -t ${{ secrets.DO_API_TOKEN }}
+
+      - name: Connect to Kubernetes cluster
+        run: doctl kubernetes cluster kubeconfig save ${{ env.CLUSTER_NAME }}
       - name: Set up Kubernetes
         uses: azure/setup-kubectl@v3
 
