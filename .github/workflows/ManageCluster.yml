@@ -7,6 +7,9 @@ on:
     # Start cluster at 7 AM UTC
     - cron: '0 6 * * *'
 
+env:
+  CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
+
 jobs:
   stop-cluster:
     if: github.event.schedule == '0 18 * * *'
@@ -39,7 +42,7 @@ jobs:
 
       - name: Create Kubernetes Cluster
         run: |
-          doctl kubernetes cluster create my-cluster \
+          doctl kubernetes cluster create ${{ env.CLUSTER_NAME }} \
             --region fra1 \
             --version 1.30.4-do.0 \
             --size s-2vcpu-4gb \
