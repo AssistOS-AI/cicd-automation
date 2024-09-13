@@ -43,6 +43,6 @@ jobs:
         run: |
           doctl kubernetes cluster create ${{ env.CLUSTER_NAME }} \
             --region fra1 \
-            --version 1.30.4-do.0 \
+            --version 1.31.1-do.0 \
             --size s-1vcpu-2gb \
             --count 1
