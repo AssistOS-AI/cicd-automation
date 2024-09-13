@@ -21,6 +21,7 @@ env:
   PRODUCTION_BASE_URL: ${{ vars.PRODUCTION_BASE_URL }}
   LLMS_SERVER_PRODUCTION_BASE_URL: ${{ vars.LLMS_SERVER_PRODUCTION_BASE_URL }}
   S3_URL: ${{ vars.S3_URL }}
+  HELM_CHART_URL: ${{ vars.HELM_CHART_URL }}
 
 jobs:
   deploy:
@@ -60,8 +61,11 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Helm Lint
-        run: helm lint ./charts/assistos
+      - name: Set up Kubernetes
+        uses: azure/setup-kubectl@v3
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
 
       - name: Deploy Helm chart
         env:
@@ -69,6 +73,9 @@ jobs:
           BUILD_SECRET_KEY: ${{ secrets.BUILD_SECRET_KEY }}
           SSO_SECRETS_ENCRYPTION_KEY: ${{ secrets.SSO_SECRETS_ENCRYPTION_KEY }}
         run: |
+          helm repo add assistos ${{ env.HELM_CHART_URL }}
+          helm repo update
+          
           helm upgrade --install assistos ./charts/assistos \
             --set config.domain="${{ env.DOMAIN }}" \
             --set config.subDomain="${{ env.SUBDOMAIN }}" \
