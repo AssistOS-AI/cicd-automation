@@ -125,7 +125,8 @@ jobs:
 
       - name: Tag AssistOS image
         run: |
-          docker tag ${{ inputs.hubIdentifier }}/${{ inputs.organizationIdentifier }}/assistos-workspace:latest ${{ inputs.hubIdentifier }}/${{ inputs.organizationIdentifier }}/assistos-workspace:${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }}
+          cd buildScripts/assistos-workspace
+          ./tag.sh
       - name: List images
         run: |
           docker image ls
