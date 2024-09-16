@@ -84,7 +84,7 @@ jobs:
         run: |
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
-          parsed_email_config=$(echo "${{ env.EMAIL_CONFIG_JSON }}" | jq '.')
+          parsed_email_config=$(echo "$EMAIL_CONFIG_JSON" | jq '.')
           echo "Parsed email config: $parsed_email_config"
           cat > values.yaml << EOF
           config:
