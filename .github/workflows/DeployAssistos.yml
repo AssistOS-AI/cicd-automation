@@ -88,8 +88,8 @@ jobs:
           cat > values.yaml << EOF
           config:
             overrides:
-              emailConfigJson: |- 
-                ${{ vars.EMAIL_CONFIG_JSON }}
+              emailConfigJson: |-
+            $(echo "${{ vars.EMAIL_CONFIG_JSON }}" | sed 's/^/      /')
           EOF
           
           helm upgrade --install --wait --timeout 300s assistos assistos/assistos \
