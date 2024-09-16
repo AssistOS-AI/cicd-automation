@@ -54,10 +54,9 @@ jobs:
         run: |
           IMAGE_TAG="${{ github.event.inputs.LLMOS_IMAGE_TAG }}"
           REPOSITORY="assistos/llmos"
-          DIGEST=$(curl -s -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
-            https://index.docker.io/v2/${REPOSITORY}/manifests/${IMAGE_TAG} \
-            | jq -r '.config.digest')
-          echo "LLMOS_IMAGE_SHA=${DIGEST}" >> $GITHUB_ENV
+          docker pull ${REPOSITORY}:${IMAGE_TAG}
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${REPOSITORY}:${IMAGE_TAG} | awk -F '[:@]' '{print $3}')
+          echo "ASSISTOS_IMAGE_SHA=${DIGEST}" >> $GITHUB_ENV
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
