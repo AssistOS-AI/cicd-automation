@@ -100,4 +100,4 @@ jobs:
             --set assistos.image.sha="${{ env.ASSISTOS_IMAGE_SHA }}" \
             --set llmos.image.tag="${{ github.event.inputs.LLMOS_IMAGE_TAG }}" \
             --set llmos.image.sha="${{ env.LLMOS_IMAGE_SHA }}" \
-            --set config.overrides.emailConfigJson="${{ env.EMAIL_CONFIG_JSON }}"
+            --set config.overrides.emailConfigJson=${{ env.EMAIL_CONFIG_JSON }}
