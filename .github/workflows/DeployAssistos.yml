@@ -92,6 +92,8 @@ jobs:
             $(echo '${{ vars.EMAIL_CONFIG_JSON }}' | sed 's/^/      /')
           EOF
           
+          cat values.yaml
+          
           helm upgrade --install --wait --timeout 300s assistos assistos/assistos \
             --set config.domain="${{ env.DOMAIN }}" \
             --set config.subDomain="${{ env.SUBDOMAIN }}" \
