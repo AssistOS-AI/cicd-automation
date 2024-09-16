@@ -84,13 +84,13 @@ jobs:
         run: |
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
-          encoded_email_config=$(echo "${{ vars.EMAIL_CONFIG_JSON }}" | base64)
-
+          parsed_email_config=$(echo "${{ env.EMAIL_CONFIG_JSON }}" | jq '.')
+          
           cat > values.yaml << EOF
           config:
             overrides:
               emailConfigJson: |-
-                $(echo "$encoded_email_config" | base64 --decode | jq '.' | sed 's/^/      /')
+                $parsed_email_config
           EOF
                     
           cat values.yaml
