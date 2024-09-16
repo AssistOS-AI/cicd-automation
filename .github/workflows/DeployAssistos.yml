@@ -89,7 +89,7 @@ jobs:
           config:
             overrides:
               emailConfigJson: |-
-                ${{ env.EMAIL_CONFIG_JSON }}
+            $(echo '${{ vars.EMAIL_CONFIG_JSON }}' | sed 's/^/      /')
           EOF
           
           cat values.yaml
