@@ -91,6 +91,10 @@ jobs:
             overrides:
               emailConfigJson: |-
                 $(echo $parsed_email_config | sed 's/^/      /')
+          
+          service: 
+            assistos:
+              type: LoadBalancer
           EOF
                     
           cat values.yaml
