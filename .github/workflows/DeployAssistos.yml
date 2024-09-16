@@ -78,7 +78,7 @@ jobs:
 
       - name: Deploy Helm chart
         env:
-          EMAIL_CONFIG_JSON: ${{ secrets.EMAIL_CONFIG_JSON }}
+          EMAIL_CONFIG_JSON: ${{ vars.EMAIL_CONFIG_JSON }}
           BUILD_SECRET_KEY: ${{ secrets.BUILD_SECRET_KEY }}
           SSO_SECRETS_ENCRYPTION_KEY: ${{ secrets.SSO_SECRETS_ENCRYPTION_KEY }}
         run: |
@@ -89,7 +89,7 @@ jobs:
           config:
             overrides:
               emailConfigJson: |- 
-                ${{ secrets.EMAIL_CONFIG_JSON }}
+                ${{ vars.EMAIL_CONFIG_JSON }}
           EOF
           
           helm upgrade --install --wait --timeout 300s assistos assistos/assistos \
