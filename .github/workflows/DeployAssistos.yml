@@ -85,15 +85,10 @@ jobs:
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
           
-          cat > values.yaml << EOF
-          config:
-            overrides:
-              emailConfigJson: |-
-                $EMAIL_CONFIG_JSON
-          EOF
-          
-          cat values.yaml
-          
+          # Convert JSON to a one-line escaped string
+          echo $EMAIL_CONFIG_JSON | jq -c .
+          FORMATTED_EMAIL_CONFIG_JSON=$(echo $EMAIL_CONFIG_JSON | jq -c .)
+
           helm upgrade --install --wait --timeout 300s assistos assistos/assistos \
             --set config.domain="${{ env.DOMAIN }}" \
             --set config.subDomain="${{ env.SUBDOMAIN }}" \
@@ -109,4 +104,4 @@ jobs:
             --set assistos.image.sha="${{ env.ASSISTOS_IMAGE_SHA }}" \
             --set llmos.image.tag="${{ github.event.inputs.LLMOS_IMAGE_TAG }}" \
             --set llmos.image.sha="${{ env.LLMOS_IMAGE_SHA }}" \
-            -f values.yaml
+            --set config.overrides.emailConfigJson="${FORMATTED_EMAIL_CONFIG_JSON}"
