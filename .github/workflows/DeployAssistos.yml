@@ -84,14 +84,15 @@ jobs:
         run: |
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
-          
+          encoded_email_config=$(echo "${{ vars.EMAIL_CONFIG_JSON }}" | base64)
+
           cat > values.yaml << EOF
           config:
             overrides:
               emailConfigJson: |-
-                $(echo "${{ vars.EMAIL_CONFIG_JSON }}" | jq '.' | sed 's/^/      /')
+                $(echo "$encoded_email_config" | base64 --decode | jq '.' | sed 's/^/      /')
           EOF
-          
+                    
           cat values.yaml
           
           helm upgrade --install --wait --timeout 300s assistos assistos/assistos \
