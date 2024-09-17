@@ -19,8 +19,8 @@ jobs:
 
       - name: Create certificate files
         run: |
-          echo "${{ secrets.CLOUDFLARE_CERT }}" > /tmp/cert.pem
-          echo "${{ secrets.CLOUDFLARE_KEY }}" > /tmp/key.pem
+          echo "${{ secrets.CLOUDFLARE_CERT }}" > ~/.cloudflared/cert.pem
+          echo "${{ secrets.CLOUDFLARE_KEY }}" > ~/.cloudflared/key.pem
 
       - name: Create Cloudflare Tunnel
         run: |
@@ -36,7 +36,7 @@ jobs:
           cat <<EOF > ~/.cloudflared/config.yml
           tunnel: ${{ env.TUNNEL_ID }}
           credentials-file: ~/.cloudflared/${{ env.TUNNEL_ID }}.json
-          origincert: /tmp/cert.pem
+          origincert: ~/.cloudflared/cert.pem
           ingress:
             - hostname: ${{ secrets.CLOUDFLARE_DOMAIN }}
               service: http://localhost:8080
