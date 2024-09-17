@@ -22,11 +22,6 @@ jobs:
           echo "${{ secrets.CLOUDFLARE_CERT }}" > /tmp/cert.pem
           echo "${{ secrets.CLOUDFLARE_KEY }}" > /tmp/key.pem
 
-      - name: Authenticate Cloudflared
-        run: |
-          echo "${{ secrets.CLOUDFLARE_API_TOKEN }}" > ~/cloudflare_token
-          cloudflared tunnel login --token ~/cloudflare_token
-
       - name: Create Cloudflare Tunnel
         run: |
           cloudflared tunnel create ${{ secrets.CLOUDFLARE_TUNNEL_NAME }}
