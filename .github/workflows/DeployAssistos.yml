@@ -23,6 +23,7 @@ env:
   S3_URL: ${{ vars.S3_URL }}
   HELM_CHART_URL: ${{ vars.HELM_CHART_URL }}
   CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
+  LOAD_BALANCER_IP: ${{ vars.LOAD_BALANCER_IP }}
 
 jobs:
   deploy:
@@ -95,6 +96,7 @@ jobs:
           service: 
             assistos:
               type: LoadBalancer
+              loadBalancerIP: ${{ env.LOAD_BALANCER_IP }}
           EOF
                     
           cat values.yaml
