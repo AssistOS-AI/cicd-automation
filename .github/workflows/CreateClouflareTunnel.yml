@@ -31,15 +31,20 @@ jobs:
         run: |
           cloudflared tunnel create ${{ secrets.CLOUDFLARE_TUNNEL_NAME }}
 
+      - name: Get Tunnel ID
+        run: |
+          TUNNEL_ID=$(cloudflared tunnel list | grep "${{ secrets.CLOUDFLARE_TUNNEL_NAME }}" | awk '{print $1}')
+          echo "TUNNEL_ID=${TUNNEL_ID}" >> $GITHUB_ENV
+
       - name: Configure Tunnel
         run: |
           cat <<EOF > ~/.cloudflared/config.yml
-          tunnel: ${{ secrets.CLOUDFLARE_TUNNEL_NAME }}
-          credentials-file: /tmp/cert.pem 
+          tunnel: ${{ env.TUNNEL_ID }}
+          credentials-file: ~/.cloudflared/${{ env.TUNNEL_ID }}.json
           origincert: /tmp/cert.pem
           ingress:
             - hostname: ${{ secrets.CLOUDFLARE_DOMAIN }}
-              service: http://localhost:8080  # Update to your app's port
+              service: http://localhost:8080
             - service: http_status:404
           EOF
 
