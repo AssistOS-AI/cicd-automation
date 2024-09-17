@@ -95,8 +95,7 @@ jobs:
           
           service: 
             assistos:
-              type: LoadBalancer
-              loadBalancerIP: ${{ env.LOAD_BALANCER_IP }}
+              type: ClusterIP
           EOF
                     
           cat values.yaml
@@ -117,3 +116,32 @@ jobs:
             --set llmos.image.tag="${{ github.event.inputs.LLMOS_IMAGE_TAG }}" \
             --set llmos.image.sha="${{ env.LLMOS_IMAGE_SHA }}" \
             -f values.yaml
+      - name: Set up Cloudflared
+        run: |
+          curl -LO https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
+          sudo chmod +x /usr/local/bin/cloudflared
+
+      - name: Authenticate Cloudflared
+        run: |
+          echo "${{ secrets.CLOUDFLARE_API_TOKEN }}" > ~/cloudflare_token
+          cloudflared tunnel login --token ~/cloudflare_token
+
+      - name: Create Cloudflare Tunnel
+        run: |
+          cloudflared tunnel create ${{ secrets.CLOUDFLARE_TUNNEL_NAME }}
+
+      - name: Configure Tunnel
+        run: |
+          cat <<EOF > ~/.cloudflared/config.yml
+          tunnel: ${{ secrets.CLOUDFLARE_TUNNEL_NAME }}
+          credentials-file: ~/credentials.json
+          ingress:
+            - hostname: ${{ secrets.CLOUDFLARE_DOMAIN }}
+              service: http://localhost:8080
+            - service: http_status:404
+          EOF
+
+      - name: Run Tunnel
+        run: |
+          cloudflared tunnel run ${{ secrets.CLOUDFLARE_TUNNEL_NAME }}
