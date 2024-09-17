@@ -35,11 +35,11 @@ jobs:
         run: |
           cat <<EOF > ~/.cloudflared/config.yml
           tunnel: ${{ secrets.CLOUDFLARE_TUNNEL_NAME }}
-          credentials-file: /tmp/cert.pem  # Update to point to the cert file
-          origincert: /tmp/cert.pem  # Specify the origin cert path
+          credentials-file: /tmp/cert.pem 
+          origincert: /tmp/cert.pem
           ingress:
             - hostname: ${{ secrets.CLOUDFLARE_DOMAIN }}
-              service: http://localhost:YOUR_APP_PORT  # Update to your app's port
+              service: http://localhost:8080  # Update to your app's port
             - service: http_status:404
           EOF
 
