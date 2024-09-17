@@ -19,6 +19,7 @@ jobs:
 
       - name: Create certificate files
         run: |
+          mkdir -p ~/.cloudflared
           echo "${{ secrets.CLOUDFLARE_CERT }}" > ~/.cloudflared/cert.pem
           echo "${{ secrets.CLOUDFLARE_KEY }}" > ~/.cloudflared/key.pem
 
