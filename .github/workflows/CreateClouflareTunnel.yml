@@ -1,0 +1,48 @@
+name: Create Cloudflare Tunnel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Cloudflared
+        run: |
+          curl -LO https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
+          sudo chmod +x /usr/local/bin/cloudflared
+
+      - name: Create certificate files
+        run: |
+          echo "${{ secrets.CLOUDFLARE_CERT }}" > /tmp/cert.pem
+          echo "${{ secrets.CLOUDFLARE_KEY }}" > /tmp/key.pem
+
+      - name: Authenticate Cloudflared
+        run: |
+          echo "${{ secrets.CLOUDFLARE_API_TOKEN }}" > ~/cloudflare_token
+          cloudflared tunnel login --token ~/cloudflare_token
+
+      - name: Create Cloudflare Tunnel
+        run: |
+          cloudflared tunnel create ${{ secrets.CLOUDFLARE_TUNNEL_NAME }}
+
+      - name: Configure Tunnel
+        run: |
+          cat <<EOF > ~/.cloudflared/config.yml
+          tunnel: ${{ secrets.CLOUDFLARE_TUNNEL_NAME }}
+          credentials-file: /tmp/cert.pem  # Update to point to the cert file
+          origincert: /tmp/cert.pem  # Specify the origin cert path
+          ingress:
+            - hostname: ${{ secrets.CLOUDFLARE_DOMAIN }}
+              service: http://localhost:YOUR_APP_PORT  # Update to your app's port
+            - service: http_status:404
+          EOF
+
+      - name: Run Tunnel
+        run: |
+          cloudflared tunnel run ${{ secrets.CLOUDFLARE_TUNNEL_NAME }}
