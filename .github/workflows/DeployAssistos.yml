@@ -10,7 +10,7 @@ on:
       LLMADAPTER_IMAGE_TAG:
         description: 'Tag for llmadapter image'
         required: true
-        default: '1.0.0-rc1'
+        default: '1.0.0-rc2'
 
 env:
   DOMAIN: ${{ vars.DOMAIN }}
@@ -50,7 +50,7 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Get Llmos Image SHA
+      - name: Get llmadapter Image SHA
         id: llmadapter_sha
         run: |
           IMAGE_TAG="${{ github.event.inputs.LLMADAPTER_IMAGE_TAG }}"
