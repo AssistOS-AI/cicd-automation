@@ -20,12 +20,12 @@ on:
         required: true
         default: 'assistos'
         type: string
-      llmosTag:
-        description: 'LLMOS Image version (e.g. x.y.z version style or leave blank to prevent build)'
+      llmadapterTag:
+        description: 'LLMADAPTER Image version (e.g. x.y.z version style or leave blank to prevent build)'
         default: ''
         type: string
-      llmOsRC:
-        description: 'LLMOS Release Candidate number'
+      llmadapterRC:
+        description: 'LLMADAPTER Release Candidate number'
         default: ''
         type: string
       assistosTag:
@@ -40,7 +40,7 @@ on:
         type: string
 
 env:
-  LLMOS_TAG: ""
+  LLMADAPTER_TAG: ""
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -68,38 +68,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
        
-      - name: Update LLMOS env values
+      - name: Update LLMADAPTER env values
         run: |
-          cd buildScripts/llmos  
+          cd buildScripts/llmadapter  
           echo "" > values.sh
           cat > values.sh << EOF
           NODE_ALPINE_BASE_IMAGE='${{ inputs.nodeBaseImage }}'
           HUB_IDENTIFIER='${{ inputs.hubIdentifier }}'  
-          LLMOS_NAME='llmos'
-          LLMOS_REPO='https://github.com/AssistOS-AI/LLMOS.git'
-          LLMOS_IMAGE_NAME='${{ inputs.organizationIdentifier }}/llmos'
-          VERSION='${{ inputs.llmosTag }}-rc${{ inputs.llmosRC }}' 
+          LLMADAPTER_NAME='llmadapter'
+          LLMADAPTER_REPO='https://github.com/AssistOS-AI/llmadapter.git'
+          LLMADAPTER_IMAGE_NAME='${{ inputs.organizationIdentifier }}/llmadapter'
+          VERSION='${{ inputs.llmadapterTag }}-rc${{ inputs.llmadapterRC }}' 
           EOF
 
-      - name: Run llmos build script
-        if: ${{inputs.llmosTag != ''}}
+      - name: Run llmadapter build script
+        if: ${{inputs.llmadapterTag != ''}}
         run: |
-          cd buildScripts/llmos
+          cd buildScripts/llmadapter
           ./build.sh 
 
-      - name: Tag llmos image
-        if: ${{inputs.llmosTag != ''}}
+      - name: Tag llmadapter image
+        if: ${{inputs.llmadapterTag != ''}}
         run: |
-          cd buildScripts/llmos
+          cd buildScripts/llmadapter
           ./tag.sh
 
       - name: Publishing the images
-        if: ${{inputs.llmosTag != ''}}
+        if: ${{inputs.llmadapterTag != ''}}
         run: |
-          LLMOS_TAG=${{ inputs.llmosTag }}-rc${{ inputs.llmosRC }}
-          echo "publishing LLMOS dev build version $LLMOS_TAG"
-          docker push ${{inputs.hubIdentifier}}/${{ inputs.organizationIdentifier }}/llmos:$LLMOS_TAG
-          echo "LLMOS_TAG=$LLMOS_TAG" >> $GITHUB_ENV
+          LLMADAPTER_TAG=${{ inputs.llmadapterTag }}-rc${{ inputs.llmadapterRC }}
+          echo "publishing LLMADAPTER dev build version $LLMADAPTER_TAG"
+          docker push ${{inputs.hubIdentifier}}/${{ inputs.organizationIdentifier }}/llmadapter:$LLMADAPTER_TAG
+          echo "LLMADAPTER_TAG=$LLMADAPTER_TAG" >> $GITHUB_ENV
 
       - name: Update AssistOS env values
         run: |
@@ -144,6 +144,6 @@ jobs:
           | nodeBaseImage          | ${{ inputs.nodeBaseImage }}                          |
           | hubIdentifier          | ${{ inputs.hubIdentifier }}                          |
           | organizationIdentifier | ${{ inputs.organizationIdentifier }}                 |
-          | llmosTag               | ${{ inputs.llmosTag }}-rc${{ inputs.llmOsRC }}       |
+          | llmadapterTag               | ${{ inputs.llmadapterTag }}-rc${{ inputs.llmadapterRC }}       |
           | assistosTag            | ${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }} |
           EOF
