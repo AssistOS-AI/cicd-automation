@@ -25,7 +25,7 @@ jobs:
       - name: Authenticate with DigitalOcean
         uses: digitalocean/action-doctl@v2
         with:
-          token: ${{ secrets.DO_TOKEN }}
+          token: ${{ secrets.DO_API_TOKEN }}
 
       # Step 4: Set up KUBECONFIG
       - name: Connect to Kubernetes cluster
