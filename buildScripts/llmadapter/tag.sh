@@ -1,0 +1,2 @@
+. values.sh
+docker tag $LLMADAPTER_IMAGE_NAME:latest $LLMADAPTER_IMAGE_NAME:$VERSION
