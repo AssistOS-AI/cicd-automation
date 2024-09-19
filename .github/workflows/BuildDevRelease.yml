@@ -110,7 +110,7 @@ jobs:
           HUB_IDENTIFIER='${{ inputs.hubIdentifier }}'  
           ASSISTOS_NAME='assistos-workspace'
           ASSISTOS_REPO='https://github.com/AssistOS-AI/assistos-workspace.git'
-          ASSISTOS_IMAGE_NAME='${{ inputs.organizationIdentifier }}/asssistos-workspace'
+          ASSISTOS_IMAGE_NAME='${{ inputs.organizationIdentifier }}/assistos-workspace'
           VERSION='${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }}'
           EOF
 
