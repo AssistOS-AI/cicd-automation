@@ -81,9 +81,25 @@ jobs:
         env:
           BUILD_SECRET_KEY: ${{ secrets.BUILD_SECRET_KEY }}
           SSO_SECRETS_ENCRYPTION_KEY: ${{ secrets.SSO_SECRETS_ENCRYPTION_KEY }}
+          EMAIL_CONFIG_JSON: ${{ secrets.EMAIL_CONFIG_JSON }}
         run: |
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
+          
+          parsed_email_config=$(echo "$EMAIL_CONFIG_JSON" | jq  '.')
+          echo "Parsed email config: $parsed_email_config"
+          cat > values.yaml << EOF
+          config:
+            overrides:
+              emailConfigJson: |-
+                $(echo $parsed_email_config | sed 's/^/      /')
+
+          service: 
+            assistos:
+              type: ClusterIP
+          EOF
+
+          cat values.yaml
           
           helm upgrade --install --wait --timeout 300s assistos assistos/assistos \
             --set config.domain="${{ env.DOMAIN }}" \
@@ -99,31 +115,13 @@ jobs:
             --set assistos.image.sha="${{ env.ASSISTOS_IMAGE_SHA }}" \
             --set llmadapter.image.tag="${{ github.event.inputs.LLMADAPTER_IMAGE_TAG }}" \
             --set llmadapter.image.sha="${{ env.LLMADAPTER_IMAGE_SHA }}" \
-
+            -f values.yaml
       - name: Deploy LLMAdapter Helm chart
-        env:
-          EMAIL_CONFIG_JSON: ${{ secrets.EMAIL_CONFIG_JSON }}
         run: |
-          parsed_email_config=$(echo "$EMAIL_CONFIG_JSON" | jq  '.')
-          echo "Parsed email config: $parsed_email_config"
-          cat > values.yaml << EOF
-          config:
-            overrides:
-              emailConfigJson: |-
-                $(echo $parsed_email_config | sed 's/^/      /')
-
-          service: 
-            assistos:
-              type: ClusterIP
-          EOF
-
-          cat values.yaml
-
           helm upgrade --install --wait --timeout 300s llmadapter assistos/llmadapter \
             --set config.environmentMode="${{ env.ENVIRONMENT_MODE }}" \
             --set config.productionBaseUrl="${{ env.PRODUCTION_BASE_URL }}" \
             --set config.llmsServerProductionBaseUrl="${{ env.LLMS_SERVER_PRODUCTION_BASE_URL }}" \
             --set config.s3Url="${{ env.S3_URL }}" \
             --set llmadapter.image.tag="${{ github.event.inputs.LLMADAPTER_IMAGE_TAG }}" \
-            --set llmadapter.image.sha="${{ env.LLMADAPTER_IMAGE_SHA }}" \
-            -f values.yaml
+            --set llmadapter.image.sha="${{ env.LLMADAPTER_IMAGE_SHA }}"
