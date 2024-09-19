@@ -2,17 +2,17 @@ name: Manage Kubernetes Cluster
 
 on:
   schedule:
-    # Stop cluster at 11 PM UTC
-    - cron: '0 18 * * *'
-    # Start cluster at 7 AM UTC
-    - cron: '0 6 * * *'
+    # Stop cluster at 11 PM UTC on weekdays
+    - cron: '0 18 * * 1-5'
+    # Start cluster at 7 AM UTC on weekdays
+    - cron: '0 6 * * 1-5'
 
 env:
   CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
 
 jobs:
   stop-cluster:
-    if: github.event.schedule == '0 18 * * *'
+    if: github.event.schedule == '0 18 * * 1-5'
     runs-on: ubuntu-latest
     steps:
       - name: Set up doctl
@@ -28,7 +28,7 @@ jobs:
           doctl kubernetes cluster delete ${{ env.CLUSTER_NAME }} --force
 
   start-cluster:
-    if: github.event.schedule == '0 6 * * *'
+    if: github.event.schedule == '0 6 * * 1-5'
     runs-on: ubuntu-latest
     steps:
       - name: Set up doctl
