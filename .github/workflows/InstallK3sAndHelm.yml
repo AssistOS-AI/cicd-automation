@@ -27,7 +27,7 @@ jobs:
 
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
             # Update the system
-            dnf update -y
+             sudo dnf update -y
 
             # Disable SELinux
             setenforce 0
