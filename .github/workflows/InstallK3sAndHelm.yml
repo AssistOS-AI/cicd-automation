@@ -31,26 +31,26 @@ jobs:
 
             # Disable SELinux
             setenforce 0
-            sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+            sudo sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
 
             # Install dependencies
-            dnf install -y curl iptables
+            sudo dnf install -y curl iptables
 
             # Install firewalld if needed
-            if ! systemctl is-active --quiet firewalld; then
-              dnf install -y firewalld
-              systemctl enable --now firewalld
-              firewall-cmd --permanent --add-port=6443/tcp
-              firewall-cmd --permanent --add-port=8472/udp
-              firewall-cmd --permanent --add-port=10250/tcp
-              firewall-cmd --permanent --add-port=10251/tcp
-              firewall-cmd --permanent --add-port=10252/tcp
-              firewall-cmd --reload
+            if ! sudo systemctl is-active --quiet firewalld; then
+              sudo dnf install -y firewalld
+              sudo systemctl enable --now firewalld
+              sudo firewall-cmd --permanent --add-port=6443/tcp
+              sudo firewall-cmd --permanent --add-port=8472/udp
+              sudo firewall-cmd --permanent --add-port=10250/tcp
+              sudo firewall-cmd --permanent --add-port=10251/tcp
+              sudo firewall-cmd --permanent --add-port=10252/tcp
+              sudo firewall-cmd --reload
             fi
 
             # Install k3s
-            curl -sfL https://get.k3s.io | sh -
-            systemctl enable --now k3s
+            sudo curl -sfL https://get.k3s.io | sh -
+            sudo systemctl enable --now k3s
 
             # Verify k3s
             kubectl get nodes
@@ -61,10 +61,10 @@ jobs:
 
             # Export kubeconfig for local access
             mkdir -p ~/.kube
-            cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-            sed -i "s/127.0.0.1/$(hostname -I | awk '{print $1}')/" ~/.kube/config
+            sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+            sudo sed -i "s/127.0.0.1/$(hostname -I | awk '{print $1}')/" ~/.kube/config
           EOF
 
       - name: Clean Up
         run: |
-          rm -f private_key.pem
+          sudo rm -f private_key.pem
