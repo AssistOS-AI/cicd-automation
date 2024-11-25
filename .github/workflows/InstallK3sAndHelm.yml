@@ -1,10 +1,7 @@
 name: Install k3s and Helm
 
 on:
-  workflow_dispatch: # Allows manual trigger of the workflow
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   setup-k3s:
