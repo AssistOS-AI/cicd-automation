@@ -1,0 +1,129 @@
+name: Deploy Assistos in Webdock K3s
+
+on:
+  workflow_dispatch:
+    inputs:
+      ASSISTOS_IMAGE_TAG:
+        description: 'Tag for assistos image'
+        required: true
+        default: '1.0.0-rc5'
+      LLMADAPTER_IMAGE_TAG:
+        description: 'Tag for llmadapter image'
+        required: true
+        default: '1.0.0-rc2'
+
+env:
+  DOMAIN: ${{ vars.DOMAIN }}
+  SUBDOMAIN: ${{ vars.SUBDOMAIN }}
+  VAULT_DOMAIN: ${{ vars.VAULT_DOMAIN }}
+  DEV_MODE: ${{ vars.DEV_MODE }}
+  ENVIRONMENT_MODE: ${{ vars.ENVIRONMENT_MODE }}
+  PRODUCTION_BASE_URL: ${{ vars.PRODUCTION_BASE_URL }}
+  LLMS_SERVER_PRODUCTION_BASE_URL: ${{ vars.LLMS_SERVER_PRODUCTION_BASE_URL }}
+  S3_URL: ${{ vars.S3_URL }}
+  HELM_CHART_URL: ${{ vars.HELM_CHART_URL }}
+  LOAD_BALANCER_IP: ${{ vars.LOAD_BALANCER_IP }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.6.3
+
+      - name: Get Assistos Image SHA
+        id: assistos_sha
+        run: |
+          IMAGE_TAG="${{ github.event.inputs.ASSISTOS_IMAGE_TAG }}"
+          REPOSITORY="assistos/assistos-workspace"
+          docker pull ${REPOSITORY}:${IMAGE_TAG}
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${REPOSITORY}:${IMAGE_TAG} | awk -F '[:@]' '{print $3}')
+          echo "ASSISTOS_IMAGE_SHA=${DIGEST}" >> $GITHUB_ENV
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Get llmadapter Image SHA
+        id: llmadapter_sha
+        run: |
+          IMAGE_TAG="${{ github.event.inputs.LLMADAPTER_IMAGE_TAG }}"
+          REPOSITORY="assistos/llmadapter"
+          docker pull ${REPOSITORY}:${IMAGE_TAG}
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${REPOSITORY}:${IMAGE_TAG} | awk -F '[:@]' '{print $3}')
+          echo "LLMADAPTER_IMAGE_SHA=${DIGEST}" >> $GITHUB_ENV
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Connect to Webdock K3s
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
+            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+            kubectl get nodes
+          EOF
+
+      - name: Deploy Assistos Helm chart
+        env:
+          BUILD_SECRET_KEY: ${{ secrets.BUILD_SECRET_KEY }}
+          SSO_SECRETS_ENCRYPTION_KEY: ${{ secrets.SSO_SECRETS_ENCRYPTION_KEY }}
+          EMAIL_CONFIG_JSON: ${{ secrets.EMAIL_CONFIG_JSON }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
+          helm repo add assistos ${{ env.HELM_CHART_URL }}
+          helm repo update
+          
+          parsed_email_config=$(echo "$EMAIL_CONFIG_JSON" | jq '.')
+          echo "Parsed email config: $parsed_email_config"
+          cat > values.yaml << EOL
+          config:
+            overrides:
+              emailConfigJson: |-
+                $(echo $parsed_email_config | sed 's/^/      /')
+
+          service: 
+            assistos:
+              type: ClusterIP
+          EOL
+
+          helm upgrade --install --wait --timeout 300s assistos assistos/assistos \
+            --set config.domain="${{ env.DOMAIN }}" \
+            --set config.subDomain="${{ env.SUBDOMAIN }}" \
+            --set config.vaultDomain="${{ env.VAULT_DOMAIN }}" \
+            --set config.buildSecretKey="${{ secrets.BUILD_SECRET_KEY }}" \
+            --set config.ssoSecretsEncryptionKey="${{ secrets.SSO_SECRETS_ENCRYPTION_KEY }}" \
+            --set config.dev="${{ env.DEV_MODE }}" \
+            --set config.environmentMode="${{ env.ENVIRONMENT_MODE }}" \
+            --set config.productionBaseUrl="${{ env.PRODUCTION_BASE_URL }}" \
+            --set config.llmsServerProductionBaseUrl="${{ env.LLMS_SERVER_PRODUCTION_BASE_URL }}" \
+            --set assistos.image.tag="${{ github.event.inputs.ASSISTOS_IMAGE_TAG }}" \
+            --set assistos.image.sha="${{ env.ASSISTOS_IMAGE_SHA }}" \
+            -f values.yaml
+          EOF
+
+      - name: Deploy LLMAdapter Helm chart
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
+          helm upgrade --install --wait --timeout 300s llmadapter assistos/llmadapter \
+            --set config.environmentMode="${{ env.ENVIRONMENT_MODE }}" \
+            --set config.productionBaseUrl="${{ env.PRODUCTION_BASE_URL }}" \
+            --set config.llmsServerProductionBaseUrl="${{ env.LLMS_SERVER_PRODUCTION_BASE_URL }}" \
+            --set config.s3Url="${{ env.S3_URL }}" \
+            --set llmadapter.image.tag="${{ github.event.inputs.LLMADAPTER_IMAGE_TAG }}" \
+            --set llmadapter.image.sha="${{ env.LLMADAPTER_IMAGE_SHA }}"
+          EOF
+
+      - name: Clean Up
+        run: |
+          rm -f private_key.pem
