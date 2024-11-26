@@ -84,7 +84,7 @@ jobs:
               enabled: false
             EOL
           
-            helm upgrade --install loki prometheus-community/loki-stack -f values.yaml --namespace monitoring --create-namespace
+            helm upgrade --install loki grafana/loki-stack -f values.yaml --namespace monitoring --create-namespace
           EOF
 
       - name: Clean Up
