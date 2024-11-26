@@ -1,4 +1,4 @@
-name: Deploy Assistos
+name: Deploy Assistos in DigitalOcean
 
 on:
   workflow_dispatch:
