@@ -28,10 +28,66 @@ jobs:
           
       - name: Get Prometheus and Grafana Helm Charts
         run: |
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo update
-          kubectl get nodes
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
+            helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+            helm repo add grafana https://grafana.github.io/helm-charts
+            helm repo update
+          
+            cat <<EOL > values.yaml
+            loki:
+              enabled: true
+            promtail:
+              enabled: true
+              config:
+                enabled: true
+                file: |
+                  server:
+                    log_level: info
+                    log_format: logfmt
+                    http_listen_port: 3101
+                  clients:
+                    - url: http://loki:3100/loki/api/v1/push
+                  positions:
+                    filename: /run/promtail/positions.yaml
+                  scrape_configs:
+                    - job_name: kubernetes-assistos
+                      pipeline_stages:
+                        - cri: { }
+                      kubernetes_sd_configs:
+                        - role: pod
+                      relabel_configs:
+                        - source_labels: [ __meta_kubernetes_namespace ]
+                          action: keep
+                          regex: default
+                        - source_labels: [ __meta_kubernetes_pod_label_app_kubernetes_io_name ]
+                          action: keep
+                          regex: assistos
+                        - source_labels: [ __meta_kubernetes_pod_label_app_kubernetes_io_instance ]
+                          action: keep
+                          regex: assistos
+                        - source_labels: [ __meta_kubernetes_pod_container_name ]
+                          action: keep
+                          regex: assistos
+                        - source_labels: [ __meta_kubernetes_namespace ]
+                          target_label: namespace
+                        - source_labels: [ __meta_kubernetes_pod_name ]
+                          target_label: pod
+                        - source_labels: [ __meta_kubernetes_pod_container_name ]
+                          target_label: container
+                        - action: replace
+                          replacement: /var/log/pods/*\$1/*.log
+                          separator: /
+                          source_labels:
+                            - __meta_kubernetes_pod_uid
+                            - __meta_kubernetes_pod_container_name
+                          target_label: __path__
+            grafana:
+              enabled: false
+            prometheus:
+              enabled: false
+            EOL
+          EOF
+
       - name: Clean Up
         run: |
           rm -f private_key.pem
