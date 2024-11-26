@@ -18,8 +18,8 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
-          sudo echo "$SSH_KEY" > private_key.pem
-          sudo chmod 600 private_key.pem
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
 
       - name: Deploy Monitoring Stack on Webdock
         env:
@@ -28,14 +28,16 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
         run: |
-          sudo ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
+            set -e
+
             # Add Helm repositories
             helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
             helm repo add grafana https://grafana.github.io/helm-charts
             helm repo update
 
             # Create values.yaml for Loki and Promtail
-            cat <<EOV > values.yaml
+            cat > values.yaml <<EOV
             loki:
               enabled: true
             promtail:
@@ -54,11 +56,11 @@ jobs:
                   scrape_configs:
                     - job_name: kubernetes-logs
                       pipeline_stages:
-                        - cri: { }
+                        - cri: {}
                       kubernetes_sd_configs:
                         - role: pod
                       relabel_configs:
-                        - source_labels: [ __meta_kubernetes_namespace ]
+                        - source_labels: [__meta_kubernetes_namespace]
                           action: keep
                           regex: default
             grafana:
@@ -74,7 +76,7 @@ jobs:
               -f values.yaml
 
             # Create values.yaml for Prometheus
-            cat <<EOP > prometheus-values.yaml
+            cat > prometheus-values.yaml <<EOP
             alertmanager:
               enabled: true
               config:
@@ -156,4 +158,4 @@ jobs:
 
       - name: Clean Up
         run: |
-          sudo rm -f private_key.pem
+          rm -f private_key.pem
