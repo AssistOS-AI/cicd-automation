@@ -103,11 +103,7 @@ jobs:
             --set assistos.image.tag="${{ github.event.inputs.ASSISTOS_IMAGE_TAG }}" \
             --set assistos.image.sha="${{ env.ASSISTOS_IMAGE_SHA }}" \
             -f values.yaml
-          EOF
-
-      - name: Deploy LLMAdapter Helm chart
-        run: |
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
+          
           helm upgrade --install --wait --timeout 300s llmadapter assistos/llmadapter \
             --set config.environmentMode="${{ env.ENVIRONMENT_MODE }}" \
             --set config.productionBaseUrl="${{ env.PRODUCTION_BASE_URL }}" \
