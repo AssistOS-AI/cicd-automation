@@ -61,25 +61,18 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Connect to Webdock K3s
+      - name: Deploy Assistos Helm chart
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
-        run: |
-          echo "$SSH_KEY" > private_key.pem
-          chmod 600 private_key.pem
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
-            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-            kubectl get nodes
-          EOF
-
-      - name: Deploy Assistos Helm chart
-        env:
           BUILD_SECRET_KEY: ${{ secrets.BUILD_SECRET_KEY }}
           SSO_SECRETS_ENCRYPTION_KEY: ${{ secrets.SSO_SECRETS_ENCRYPTION_KEY }}
           EMAIL_CONFIG_JSON: ${{ secrets.EMAIL_CONFIG_JSON }}
         run: |
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
