@@ -22,6 +22,9 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
         run: |
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
             helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
             helm repo add grafana https://grafana.github.io/helm-charts
