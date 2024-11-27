@@ -23,6 +23,7 @@ env:
   S3_URL: ${{ vars.S3_URL }}
   HELM_CHART_URL: ${{ vars.HELM_CHART_URL }}
   LOAD_BALANCER_IP: ${{ vars.LOAD_BALANCER_IP }}
+  EMAIL_CONFIG_JSON: ${{ vars.EMAIL_CONFIG_JSON }}
 
 jobs:
   deploy:
@@ -41,14 +42,13 @@ jobs:
         id: assistos_sha
         run: |
           IMAGE_TAG="${{ github.event.inputs.ASSISTOS_IMAGE_TAG }}"
-          REPOSITORY="assistos/assistos-workspace"  # Correct repository name
+          REPOSITORY="assistos/assistos-workspace"
           docker pull ${REPOSITORY}:${IMAGE_TAG}
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${REPOSITORY}:${IMAGE_TAG} | awk -F '[:@]' '{print $3}')
           echo "ASSISTOS_IMAGE_SHA=${DIGEST}" >> $GITHUB_ENV
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-
 
       - name: Get llmadapter Image SHA
         id: llmadapter_sha
@@ -69,23 +69,30 @@ jobs:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           BUILD_SECRET_KEY: ${{ secrets.BUILD_SECRET_KEY }}
           SSO_SECRETS_ENCRYPTION_KEY: ${{ secrets.SSO_SECRETS_ENCRYPTION_KEY }}
-          EMAIL_CONFIG_JSON: ${{ vars.EMAIL_CONFIG_JSON }} # Make this available in the env
+          DOMAIN: ${{ env.DOMAIN }}
+          SUBDOMAIN: ${{ env.SUBDOMAIN }}
+          VAULT_DOMAIN: ${{ env.VAULT_DOMAIN }}
+          DEV_MODE: ${{ env.DEV_MODE }}
+          ENVIRONMENT_MODE: ${{ env.ENVIRONMENT_MODE }}
+          PRODUCTION_BASE_URL: ${{ env.PRODUCTION_BASE_URL }}
+          LLMS_SERVER_PRODUCTION_BASE_URL: ${{ env.LLMS_SERVER_PRODUCTION_BASE_URL }}
+          EMAIL_CONFIG_JSON: ${{ env.EMAIL_CONFIG_JSON }}
         run: |
           echo "$SSH_KEY" > private_key.pem
           chmod 600 private_key.pem
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << EOF
-          EMAIL_CONFIG_JSON='${{ env.EMAIL_CONFIG_JSON }}' # Use single quotes and ${{ env.EMAIL_CONFIG_JSON }}
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
+          EMAIL_CONFIG_JSON="${EMAIL_CONFIG_JSON}"
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
-
-          parsed_email_config=$(echo "\$EMAIL_CONFIG_JSON" | jq '.') # Escape $
-          echo "Parsed email config: \$parsed_email_config"       # Escape $
+          
+          parsed_email_config=$(echo "$EMAIL_CONFIG_JSON" | jq '.')
+          echo "Parsed email config: $parsed_email_config"
           cat > values.yaml << EOL
           config:
             overrides:
               emailConfigJson: |-
-                $(echo "\$parsed_email_config" | sed 's/^/      /') # Escape $
-
+            $(echo "$parsed_email_config" | sed 's/^/                /')
+          
           service:
             assistos:
               type: ClusterIP
