@@ -64,5 +64,5 @@ jobs:
                       initialDelaySeconds: 10
                       periodSeconds: 10
           EOL
-          EOF
           kubectl rollout status deployment/cloudflared-deployment
+          EOF
