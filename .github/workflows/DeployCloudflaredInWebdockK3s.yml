@@ -16,6 +16,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
+          CLOUDFLARED_TOKEN: ${{ secrets.CLOUDFLARED_TOKEN }}
         run: |
           sudo echo "$SSH_KEY" > private_key.pem
           sudo chmod 600 private_key.pem
@@ -44,6 +45,7 @@ jobs:
                   - command:
                       - cloudflared
                       - tunnel
+                      - --no-autoupdate
                       - --loglevel
                       - debug
                       - --metrics
@@ -51,7 +53,7 @@ jobs:
                       - run
                     args:
                       - --token
-                      - ${{ secrets.CLOUDFLARED_TOKEN }}
+                      - $CLOUDFLARED_TOKEN
                     image: cloudflare/cloudflared:latest
                     name: cloudflared
                     livenessProbe:
