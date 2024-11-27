@@ -1,6 +1,5 @@
 name: Manage Kubernetes Cluster
-
-on:
+#on:
 #  schedule:
 #    # Stop cluster at 11 PM UTC on weekdays
 #    - cron: '0 18 * * 1-5'
