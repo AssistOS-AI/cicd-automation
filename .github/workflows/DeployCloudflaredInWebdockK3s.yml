@@ -45,7 +45,6 @@ jobs:
                   - command:
                       - cloudflared
                       - tunnel
-                      - --no-autoupdate
                       - --loglevel
                       - debug
                       - --metrics
