@@ -52,7 +52,7 @@ jobs:
                       - run
                     args:
                       - --token
-                      - $CLOUDFLARED_TOKEN
+                      - '$CLOUDFLARED_TOKEN'
                     image: cloudflare/cloudflared:latest
                     name: cloudflared
                     livenessProbe:
