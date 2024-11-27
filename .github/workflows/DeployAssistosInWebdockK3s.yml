@@ -72,7 +72,7 @@ jobs:
           echo "$SSH_KEY" > private_key.pem
           chmod 600 private_key.pem
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
-          export EMAIL_CONFIG_JSON=${{ secrets.EMAIL_CONFIG_JSON }}
+          export EMAIL_CONFIG_JSON=${{ vars.EMAIL_CONFIG_JSON }}
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
           
