@@ -63,7 +63,4 @@ jobs:
                       periodSeconds: 10
           EOL
           EOF
-
-      - name: Verify deployment
-        run: |
           kubectl rollout status deployment/cloudflared-deployment
