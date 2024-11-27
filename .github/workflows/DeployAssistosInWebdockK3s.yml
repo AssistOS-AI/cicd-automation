@@ -82,7 +82,7 @@ jobs:
           config:
             overrides:
               emailConfigJson: |-
-              "$(echo $parsed_email_config | sed 's/^/                /')"
+            $(echo "$parsed_email_config" | jq -c '.' | sed 's/^/      /')
           
           service:
             assistos:
