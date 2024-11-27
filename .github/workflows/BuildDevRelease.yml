@@ -144,6 +144,6 @@ jobs:
           | nodeBaseImage          | ${{ inputs.nodeBaseImage }}                          |
           | hubIdentifier          | ${{ inputs.hubIdentifier }}                          |
           | organizationIdentifier | ${{ inputs.organizationIdentifier }}                 |
-          | llmadapterTag               | ${{ inputs.llmadapterTag }}-rc${{ inputs.llmadapterRC }}       |
+          | llmadapterTag          | ${{ inputs.llmadapterTag }}-rc${{ inputs.llmadapterRC }}       |
           | assistosTag            | ${{ inputs.assistosTag }}-rc${{ inputs.assistosRC }} |
           EOF
