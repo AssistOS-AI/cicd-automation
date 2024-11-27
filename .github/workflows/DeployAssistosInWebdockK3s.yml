@@ -88,7 +88,7 @@ jobs:
             assistos:
               type: ClusterIP
           EOL
-
+          cat values.yaml
           helm upgrade --install --wait --timeout 300s assistos assistos/assistos \
             --set config.domain="${{ env.DOMAIN }}" \
             --set config.subDomain="${{ env.SUBDOMAIN }}" \
