@@ -68,12 +68,11 @@ jobs:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           BUILD_SECRET_KEY: ${{ secrets.BUILD_SECRET_KEY }}
           SSO_SECRETS_ENCRYPTION_KEY: ${{ secrets.SSO_SECRETS_ENCRYPTION_KEY }}
-          EMAIL_CONFIG_JSON: ${{ secrets.EMAIL_CONFIG_JSON }}
         run: |
           echo "$SSH_KEY" > private_key.pem
           chmod 600 private_key.pem
-          
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
+          export EMAIL_CONFIG_JSON=${{ secrets.EMAIL_CONFIG_JSON }}
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
           
