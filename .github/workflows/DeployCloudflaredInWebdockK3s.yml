@@ -1,4 +1,4 @@
-name: Deploy Cloudflared in DigitalOcean
+name: Deploy Cloudflared in Webdock K3s
 
 on:
   workflow_dispatch:
