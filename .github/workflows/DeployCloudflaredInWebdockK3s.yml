@@ -20,7 +20,7 @@ jobs:
         run: |
           sudo echo "$SSH_KEY" > private_key.pem
           sudo chmod 600 private_key.pem
-
+          echo $CLOUDFLARED_TOKEN
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
           kubectl apply -f - <<EOL
           apiVersion: apps/v1
@@ -52,7 +52,7 @@ jobs:
                       - run
                     args:
                       - --token
-                      - {{ secrets.CLOUDFLARED_TOKEN }}
+                      - $CLOUDFLARED_TOKEN
                     image: cloudflare/cloudflared:latest
                     name: cloudflared
                     livenessProbe:
