@@ -63,19 +63,6 @@ jobs:
             mkdir -p ~/.kube
             sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
             sudo sed -i "s/127.0.0.1/$(hostname -I | awk '{print $1}')/" ~/.kube/config
-
-            # Modify CoreDNS ConfigMap to include the forward directive
-            kubectl -n kube-system get configmap coredns -o yaml > coredns-config.yaml
-
-            # Add forward directive
-            sed -i '/kubernetes cluster.local in-addr.arpa ip6.arpa {/a \
-                \          forward . 8.8.8.8 1.1.1.1' coredns-config.yaml
-
-            # Apply the updated ConfigMap
-            kubectl -n kube-system apply -f coredns-config.yaml
-
-            # Restart CoreDNS pods to apply changes
-            kubectl -n kube-system rollout restart deployment coredns
           EOF
 
       - name: Clean Up
