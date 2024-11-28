@@ -49,7 +49,7 @@ jobs:
             fi
 
             # Install k3s
-            sudo curl -sfL https://get.k3s.io | sh -s - server --write-kubeconfig-mode 644 --flannel-backend=ipsec            
+            curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='--flannel-backend=wireguard-native' sh -
             sudo systemctl enable --now k3s
 
             # Verify k3s
