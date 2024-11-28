@@ -65,6 +65,13 @@ jobs:
             sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
             sudo sed -i "s/127.0.0.1/$(hostname -I | awk '{print $1}')/" ~/.kube/config
 
+            # Wait for CoreDNS ConfigMap to be created
+            echo "Waiting for CoreDNS ConfigMap..."
+            while ! kubectl -n kube-system get configmap coredns &> /dev/null; do
+              sleep 5
+            done
+            echo "CoreDNS ConfigMap found."
+
             # Modify CoreDNS ConfigMap to include the forward directive
             kubectl -n kube-system get configmap coredns -o yaml > coredns-config.yaml
 
