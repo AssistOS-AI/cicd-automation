@@ -49,7 +49,7 @@ jobs:
             fi
 
             # Install k3s
-            curl -sfL https://get.k3s.io | sh -s - server --write-kubeconfig-mode 644 --flannel-backend=wireguard-native
+            curl -sfL https://get.k3s.io | sh -
             sudo systemctl enable --now k3s
 
             # Verify k3s
@@ -67,10 +67,4 @@ jobs:
             sudo sed -i "s/127.0.0.1/$(hostname -I | awk '{print $1}')/" ~/.kube/config
           
             sudo reboot
-            # Wait for server to reboot
-            sleep 60
           EOF
-
-      - name: Clean Up
-        run: |
-          sudo rm -f private_key.pem
