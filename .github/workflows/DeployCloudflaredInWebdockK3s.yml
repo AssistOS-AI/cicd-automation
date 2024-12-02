@@ -21,6 +21,9 @@ jobs:
           sudo echo "$SSH_KEY" > private_key.pem
           sudo chmod 600 private_key.pem
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
+          sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+          sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+          
           export CLOUDFLARED_TOKEN='${{ secrets.CLOUDFLARED_TOKEN }}'
           kubectl apply -f - <<EOL
           apiVersion: apps/v1
