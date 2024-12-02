@@ -56,6 +56,7 @@ jobs:
             kubectl get nodes
 
             # Install Helm
+            sudo dnf install -y tar
             curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
             helm version
 
