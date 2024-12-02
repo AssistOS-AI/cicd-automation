@@ -28,11 +28,10 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
             # Update the system
             sudo dnf update -y
-          
-            # Ensure SELinux is in enforcing mode
-            export INSTALL_K3S_SELINUX=true
-            sudo setenforce 1
-            sudo sed -i 's/^SELINUX=disabled/SELINUX=enforcing/' /etc/selinux/config
+
+            # Disable SELinux
+            setenforce 0
+            sudo sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
 
             # Install dependencies
             sudo dnf install -y curl iptables git
@@ -66,6 +65,10 @@ jobs:
             sudo chmod 644 /etc/rancher/k3s/k3s.yaml
             sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
             sudo sed -i "s/127.0.0.1/$(hostname -I | awk '{print $1}')/" ~/.kube/config
+          
+            sudo reboot
+            # Wait for server to reboot
+            sleep 60
           EOF
 
       - name: Clean Up
