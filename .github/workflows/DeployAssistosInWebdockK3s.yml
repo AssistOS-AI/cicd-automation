@@ -81,7 +81,7 @@ jobs:
           if ! command -v jq &> /dev/null
           then
               echo "jq could not be found, installing..."
-              sudo apt-get update -y && sudo apt-get install jq -y
+              sudo dnf install -y jq
           else
               echo "jq is already installed."
           fi
