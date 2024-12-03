@@ -78,6 +78,13 @@ jobs:
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
           echo "Email config: '$EMAIL_CONFIG_JSON'"
+          if ! command -v jq &> /dev/null
+          then
+              echo "jq could not be found, installing..."
+              sudo apt-get update -y && sudo apt-get install jq -y
+          else
+              echo "jq is already installed."
+          fi
           parsed_email_config=$(echo '${{ vars.EMAIL_CONFIG_JSON }}' | jq '.')
           echo "Parsed email config: '$parsed_email_config'"
           cat > values.yaml << EOL
