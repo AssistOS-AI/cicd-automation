@@ -119,6 +119,15 @@ jobs:
                 - name: 'email-alerts'
                   email_configs:
                     - to: '$ALERT_EMAIL'
+          prometheus:
+            prometheusSpec:
+              storageSpec:
+                volumeClaimTemplate:
+                  spec:
+                    accessModes: ["ReadWriteOnce"]
+                    resources:
+                      requests:
+                        storage: 50Gi
           EOL
           helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
             --namespace monitoring \
