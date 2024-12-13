@@ -4,9 +4,8 @@ source values.sh
 
 git clone $LLMADAPTER_REPO tmp/llmadapter
 cd tmp/llmadapter
+apk add dotnet9-runtime
 
-rm -rf package-lock.json
-npm install onnxruntime-node --onnxruntime-node-install-cuda=skip
 npm install
 
 cd ../../
