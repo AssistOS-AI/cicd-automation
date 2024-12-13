@@ -84,7 +84,6 @@ jobs:
               echo "jq is already installed."
           fi
           parsed_email_config=$(echo '${{ secrets.EMAIL_CONFIG_JSON }}' | jq '.')
-          echo "Parsed email config: '$parsed_email_config'"
           cat > values.yaml << EOL
           config:
             overrides:
