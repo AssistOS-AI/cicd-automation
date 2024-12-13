@@ -5,6 +5,7 @@ source values.sh
 git clone $LLMADAPTER_REPO tmp/llmadapter
 cd tmp/llmadapter
 
+npm install onnxruntime-node --onnxruntime-node-install-cuda=skip
 npm install
 
 cd ../../
