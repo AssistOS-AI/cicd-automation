@@ -9,6 +9,7 @@ COPY ./tmp/llmadapter ./llmadapter
 # Set the working directory in the container
 WORKDIR /llmadapter
 
+RUN ls -la ./node_modules
 # Expose the port the app runs on
 EXPOSE 8079
 
