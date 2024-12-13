@@ -4,7 +4,6 @@ source values.sh
 
 git clone $LLMADAPTER_REPO tmp/llmadapter
 cd tmp/llmadapter
-apk add dotnet9-runtime
 
 npm install
 
