@@ -74,10 +74,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
           sudo chmod 644 /etc/rancher/k3s/k3s.yaml
           sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-          EMAIL_CONFIG_JSON='${{ vars.EMAIL_CONFIG_JSON }}'
           helm repo add assistos ${{ env.HELM_CHART_URL }}
           helm repo update
-          echo "Email config: '$EMAIL_CONFIG_JSON'"
           if ! command -v jq &> /dev/null
           then
               echo "jq could not be found, installing..."
@@ -85,7 +83,7 @@ jobs:
           else
               echo "jq is already installed."
           fi
-          parsed_email_config=$(echo '${{ vars.EMAIL_CONFIG_JSON }}' | jq '.')
+          parsed_email_config=$(echo '${{ secrets.EMAIL_CONFIG_JSON }}' | jq '.')
           echo "Parsed email config: '$parsed_email_config'"
           cat > values.yaml << EOL
           config:
