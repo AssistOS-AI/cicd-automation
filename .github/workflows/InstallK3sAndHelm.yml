@@ -45,7 +45,9 @@ jobs:
               sudo firewall-cmd --permanent --add-port=10250/tcp
               sudo firewall-cmd --permanent --add-port=10251/tcp
               sudo firewall-cmd --permanent --add-port=10252/tcp
-              sudo systemctl restart firewalld
+              sudo systemctl stop firewalld
+              sleep 5
+              sudo systemctl start firewalld
             fi
 
             # Install k3s
