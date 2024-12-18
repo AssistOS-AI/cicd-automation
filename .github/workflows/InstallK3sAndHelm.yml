@@ -36,20 +36,6 @@ jobs:
             # Install dependencies
             sudo dnf install -y curl iptables git
 
-            # Install firewalld if needed
-            if ! sudo systemctl is-active --quiet firewalld; then
-              sudo dnf install -y firewalld
-              sudo systemctl enable --now firewalld
-              sudo firewall-cmd --permanent --add-port=6443/tcp
-              sudo firewall-cmd --permanent --add-port=8472/udp
-              sudo firewall-cmd --permanent --add-port=10250/tcp
-              sudo firewall-cmd --permanent --add-port=10251/tcp
-              sudo firewall-cmd --permanent --add-port=10252/tcp
-              sudo systemctl stop firewalld
-              sleep 5
-              sudo systemctl start firewalld
-            fi
-
             # Install k3s
             curl -sfL https://get.k3s.io | sh -
             sudo systemctl enable --now k3s
@@ -67,6 +53,5 @@ jobs:
             sudo chmod 644 /etc/rancher/k3s/k3s.yaml
             sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
             sudo sed -i "s/127.0.0.1/$(hostname -I | awk '{print $1}')/" ~/.kube/config
-          
             sudo reboot
           EOF
