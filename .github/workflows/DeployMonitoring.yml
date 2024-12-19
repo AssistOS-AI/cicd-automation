@@ -26,6 +26,9 @@ jobs:
           chmod 600 private_key.pem
           
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SSH_USER@$SSH_HOST << 'EOF'
+          sudo systemctl stop firewalld
+          sleep 30
+          sudo systemctl start firewalld
           sudo chmod 644 /etc/rancher/k3s/k3s.yaml
           sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
