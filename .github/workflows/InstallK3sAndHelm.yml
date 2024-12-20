@@ -40,8 +40,9 @@ jobs:
               sudo dnf install -y firewalld
               sudo systemctl enable --now firewalld
               sudo firewall-cmd --permanent --set-target=DROP
-              sudo firewall-cmd --permanent --add-service=ssh
               sudo firewall-cmd --permanent --add-rich-rule='rule protocol value="udp" drop'
+              sudo firewall-cmd --permanent --add-rich-rule='rule protocol value="tcp" drop'
+              sudo firewall-cmd --permanent --add-service=ssh
               sudo firewall-cmd --reload
             fi
 
