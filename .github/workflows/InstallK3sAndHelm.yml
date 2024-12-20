@@ -29,11 +29,8 @@ jobs:
             # Update the system
             sudo dnf update -y
 
-            # Temporarily disable SELinux for installation
             setenforce 0
-
-            # Install dependencies
-            sudo dnf install -y curl iptables git
+            sudo sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
 
             # Install firewalld if needed
             if ! sudo systemctl is-active --quiet firewalld; then
