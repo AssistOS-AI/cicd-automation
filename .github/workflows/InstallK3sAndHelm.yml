@@ -29,9 +29,8 @@ jobs:
             # Update the system
             sudo dnf update -y
 
-            # Disable SELinux
+            # Temporarily disable SELinux for installation
             setenforce 0
-            sudo sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
 
             # Install dependencies
             sudo dnf install -y curl iptables git
@@ -40,6 +39,9 @@ jobs:
             if ! sudo systemctl is-active --quiet firewalld; then
               sudo dnf install -y firewalld
               sudo systemctl enable --now firewalld
+              sudo firewall-cmd --permanent --set-target=DROP
+              sudo firewall-cmd --permanent --add-service=ssh
+              sudo firewall-cmd --permanent --add-rich-rule='rule protocol value="udp" drop'
               sudo firewall-cmd --reload
             fi
 
@@ -60,5 +62,14 @@ jobs:
             sudo chmod 644 /etc/rancher/k3s/k3s.yaml
             sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
             sudo sed -i "s/127.0.0.1/$(hostname -I | awk '{print $1}')/" ~/.kube/config
+
+            # Re-enable SELinux
+            sudo sed -i 's/^SELINUX=disabled/SELINUX=enforcing/' /etc/selinux/config
+            echo "SELinux will be enabled after reboot"
+          
+            # Relabel SELinux contexts
+            sudo touch /.autorelabel
+
+            # Reboot the system
             sudo reboot
           EOF
