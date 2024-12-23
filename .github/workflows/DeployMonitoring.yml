@@ -35,7 +35,7 @@ jobs:
           helm repo update
           
           cat <<EOL > prometheus-values.yaml
-          nodeExporter:
+          prometheus-node-exporter:
             hostNetwork: false
           prometheus:
             hostNetwork: false
