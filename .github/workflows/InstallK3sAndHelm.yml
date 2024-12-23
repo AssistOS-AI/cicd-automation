@@ -32,6 +32,10 @@ jobs:
             setenforce 0
             sudo sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
 
+            # Configure DNS resolution
+            echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf
+            echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf
+
             # Install firewalld if needed
             if ! sudo systemctl is-active --quiet firewalld; then
               sudo dnf install -y firewalld
@@ -39,6 +43,10 @@ jobs:
               sudo firewall-cmd --change-interface=eth0 --zone=drop --permanent
               sudo firewall-cmd --permanent --zone=drop --add-rich-rule='rule family="ipv4" port port="22" protocol="tcp" accept'
               sudo firewall-cmd --permanent --zone=drop --add-rich-rule='rule protocol value="udp" drop'
+              sudo firewall-cmd --zone=internal --add-source=10.42.0.0/16 --permanent
+              sudo firewall-cmd --zone=internal --add-port=9100/tcp --permanent
+              sudo firewall-cmd --zone=internal --add-port=10250/tcp --permanent
+              sudo firewall-cmd --zone=internal --add-port=6443/tcp --permanent
               sudo firewall-cmd --reload
             fi
 
