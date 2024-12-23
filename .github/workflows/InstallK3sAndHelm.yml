@@ -29,6 +29,7 @@ jobs:
             # Update the system
             sudo dnf update -y
 
+            # Disable SELinux
             setenforce 0
             sudo sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
 
@@ -38,7 +39,6 @@ jobs:
             sudo echo "nameserver 8.8.8.8" | cat - /etc/resolv.conf | sudo tee /etc/resolv.conf
             sudo rm /etc/resolv.conf.bak
 
-            # Install firewalld if needed
             if ! sudo systemctl is-active --quiet firewalld; then
               sudo dnf install -y firewalld
               sudo systemctl enable --now firewalld
@@ -48,11 +48,9 @@ jobs:
               sudo firewall-cmd --reload
             fi
 
-            # Install k3s
-            curl -sfL https://get.k3s.io | sh -
+            curl -sfL https://get.k3s.io | sh -s - server --disable traefik
             sudo systemctl enable --now k3s
 
-            # Verify k3s
             kubectl get nodes
 
             # Install Helm
