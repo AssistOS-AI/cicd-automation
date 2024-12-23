@@ -35,6 +35,8 @@ jobs:
           helm repo update
           
           cat <<EOL > prometheus-values.yaml
+          prometheusOperator:
+            hostNetwork: false
           prometheus:
             hostNetwork: false
             prometheusSpec:
