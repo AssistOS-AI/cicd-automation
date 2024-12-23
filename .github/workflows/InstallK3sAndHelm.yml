@@ -33,8 +33,10 @@ jobs:
             sudo sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
 
             # Configure DNS resolution
-            echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf
-            echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf
+            sudo cp /etc/resolv.conf /etc/resolv.conf.bak
+            sudo echo "nameserver 1.1.1.1" | cat - /etc/resolv.conf.bak | sudo tee /etc/resolv.conf
+            sudo echo "nameserver 8.8.8.8" | cat - /etc/resolv.conf | sudo tee /etc/resolv.conf
+            sudo rm /etc/resolv.conf.bak
 
             # Install firewalld if needed
             if ! sudo systemctl is-active --quiet firewalld; then
