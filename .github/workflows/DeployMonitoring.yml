@@ -36,8 +36,8 @@ jobs:
           
           cat <<EOL > prometheus-values.yaml
           prometheus:
+            hostNetwork: false
             prometheusSpec:
-              hostNetwork: false
               storageSpec:
                 volumeClaimTemplate:
                   spec:
