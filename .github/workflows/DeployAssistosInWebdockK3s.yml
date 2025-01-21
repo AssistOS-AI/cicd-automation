@@ -10,7 +10,7 @@ on:
       LLMADAPTER_IMAGE_TAG:
         description: 'Tag for llmadapter image'
         required: true
-        default: '1.0.0-rd11'
+        default: '1.0.0-rc11'
 
 env:
   DOMAIN: ${{ vars.DOMAIN }}
