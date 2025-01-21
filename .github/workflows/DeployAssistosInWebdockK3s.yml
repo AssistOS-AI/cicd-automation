@@ -23,6 +23,7 @@ env:
   S3_URL: ${{ vars.S3_URL }}
   HELM_CHART_URL: ${{ vars.HELM_CHART_URL }}
   LOAD_BALANCER_IP: ${{ vars.LOAD_BALANCER_IP }}
+  CLEAN_STORAGE_VOLUME_ON_RESTART: ${{ vars.CLEAN_STORAGE_VOLUME_ON_RESTART }}
 
 jobs:
   deploy:
@@ -104,6 +105,7 @@ jobs:
             --set config.environmentMode="${{ env.ENVIRONMENT_MODE }}" \
             --set config.productionBaseUrl="${{ env.PRODUCTION_BASE_URL }}" \
             --set config.llmsServerProductionBaseUrl="${{ env.LLMS_SERVER_PRODUCTION_BASE_URL }}" \
+            --set config.cleanStorageVolumeOnRestart="${{ env.CLEAN_STORAGE_VOLUME_ON_RESTART }}" \
             --set assistos.image.tag="${{ github.event.inputs.ASSISTOS_IMAGE_TAG }}" \
             --set assistos.image.sha="${{ env.ASSISTOS_IMAGE_SHA }}" \
             -f values.yaml
