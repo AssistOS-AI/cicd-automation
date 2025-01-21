@@ -6,11 +6,11 @@ on:
       ASSISTOS_IMAGE_TAG:
         description: 'Tag for assistos image'
         required: true
-        default: '1.0.0-rc8'
+        default: '1.0.0-rc20'
       LLMADAPTER_IMAGE_TAG:
         description: 'Tag for llmadapter image'
         required: true
-        default: '1.0.0-rc3'
+        default: '1.0.0-rd11'
 
 env:
   DOMAIN: ${{ vars.DOMAIN }}
