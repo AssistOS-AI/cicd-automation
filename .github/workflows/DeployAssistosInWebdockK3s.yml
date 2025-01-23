@@ -115,7 +115,9 @@ jobs:
             --set config.productionBaseUrl="${{ env.PRODUCTION_BASE_URL }}" \
             --set config.llmsServerProductionBaseUrl="${{ env.LLMS_SERVER_PRODUCTION_BASE_URL }}" \
             --set config.s3Url="${{ env.S3_URL }}" \
-            --set config.env.
+            --set config.env.awsAccessKeyId="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            --set config.env.awsSecretAccessKey="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            --set config.env.bucketName="${{ secrets.BUCKET_NAME }}" \
             --set llmadapter.image.tag="${{ github.event.inputs.LLMADAPTER_IMAGE_TAG }}" \
             --set llmadapter.image.sha="${{ env.LLMADAPTER_IMAGE_SHA }}"
           EOF
